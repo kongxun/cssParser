@@ -7,4 +7,21 @@
 
 #ifndef _PARSER_H
 #define _PARSER_H
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h> 
+
+typedef struct StyleNode{
+    char *key;
+    char *value;
+    struct StyleNode *next;
+} StyleNode;
+
+typedef struct SelectorNode{
+    char *selectorText;
+    StyleNode *style;
+    struct SelectorNode *next;
+} SelectorNode;
+
+void parser(FILE *srcF, FILE* dstF);
 #endif
