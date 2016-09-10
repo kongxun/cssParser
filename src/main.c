@@ -8,15 +8,15 @@
 #include "parser.h"
 
 int main(){
-    const char *srcFile = "/home/k.x/Project/github/C_C++_Project/cssParser/index.css";
-    const char *dstFile = "/home/k.x/Project/github/C_C++_Project/cssParser/index.json";
-    FILE *srcF = fopen(srcFile, "r");
-    FILE *dstF = fopen(dstFile, "w");
+    const char *srcPath = "/home/k.x/Project/github/C_C++_Project/cssParser/index.css";
+    const char *dstPath = "/home/k.x/Project/github/C_C++_Project/cssParser/index.json";
+    FILE *srcF = fopen(srcPath, "r");
+    FILE *dstF = fopen(dstPath, "w");
     if(srcF == NULL){
-        printf("no such file or directory:%s", srcFile);
+        printf("no such file or directory:%s", srcPath);
         exit(EXIT_FAILURE);
     }
-    parser(srcF, dstF);
+    parser(srcPath, srcF, dstF);
     fclose(srcF);
     fclose(dstF);
     return 0;

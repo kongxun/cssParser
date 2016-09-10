@@ -23,5 +23,9 @@ typedef struct SelectorNode{
     struct SelectorNode *next;
 } SelectorNode;
 
-void parser(FILE *srcF, FILE* dstF);
+void is_pointer_null(void *p);
+
+void parser(const char *src_path, FILE *src_file, FILE *dst_file);
+
+void output_to_json(const char *src_path, SelectorNode *css_rule, FILE *dst_file);
 #endif

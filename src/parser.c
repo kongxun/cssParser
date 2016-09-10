@@ -14,17 +14,39 @@ void is_pointer_null(void *p){
     }
 }        
 
-void parser(FILE *srcF, FILE *dstF){
-    SelectorNode *cssRule;
+void output_to_json(const char *src_path, SelectorNode *css_rule, FILE *dst_file){
+    fputs("{filename:", dst_file);
+    fputs(src_path, dst_file);
+    fputs(",styles:[", dst_file);
+    while(css_rule->selectorText){
+        fputs("{selector:", dst_file);
+        fputs(css_rule->selectorText, dst_file);
+        fputs(",rules:{", dst_file);
+        StyleNode *style_node = css_rule->style;
+        while(style_node->next){
+            fputs(style_node->key, dst_file);
+            fputs(":", dst_file);
+            fputs(style_node->value, dst_file);
+            fputs(",", dst_file);
+            style_node = style_node->next;
+        }
+        fputs("}},", dst_file);
+        css_rule = css_rule->next;
+    }
+    fputs("]}\n", dst_file);
+}
+
+void parser(const char *src_path, FILE *src_file, FILE *dst_file){
+    SelectorNode *css_rule;
     
-    cssRule = (SelectorNode *) calloc(1, sizeof(SelectorNode));
-    is_pointer_null(cssRule);
+    css_rule = (SelectorNode *) calloc(1, sizeof(SelectorNode));
+    is_pointer_null(css_rule);
     
-    SelectorNode *currentSelector = cssRule;
+    SelectorNode *currentSelector = css_rule;
 
     char currentChar=' ';
     while(currentChar != EOF){
-        currentChar = (char) getc(srcF);
+        currentChar = (char) getc(src_file);
         if(currentChar==' '||currentChar=='\n'){
             continue;
         }else if(currentChar==EOF){
@@ -44,7 +66,7 @@ void parser(FILE *srcF, FILE *dstF){
                 //printf("%c", currentChar);
                 temp[0] = currentChar;
                 strcat(selectorText, temp);
-                currentChar = (char) getc(srcF);
+                currentChar = (char) getc(src_file);
             }
 
             StyleNode *style = (StyleNode *) calloc(1, sizeof(StyleNode));
@@ -54,7 +76,7 @@ void parser(FILE *srcF, FILE *dstF){
             while(currentChar!='}'){
                 //printf("%c", currentChar);
                 if(currentChar==' '||currentChar=='\n'||currentChar=='{'){
-                    currentChar=(char) getc(srcF);
+                    currentChar=(char) getc(src_file);
                     continue;
                 }else{
                     char *style_key = (char *) calloc(60, sizeof(char));
@@ -63,20 +85,22 @@ void parser(FILE *srcF, FILE *dstF){
                     while(currentChar!=':'){
                         //printf("%c", currentChar);
                         if(currentChar==' '){
-                            currentChar = (char) getc(srcF);
+                            currentChar = (char) getc(src_file);
                         }else{
-                            strcat(style_key, &currentChar);
-                            currentChar = (char) getc(srcF);
+                            temp[0] = currentChar;
+                            strcat(style_key, temp);
+                            currentChar = (char) getc(src_file);
                         }
                     }
 
                     while(currentChar!=';'){
                         //printf("%c", currentChar);
                         if(currentChar==' '||currentChar==':'){
-                            currentChar = (char) getc(srcF);
+                            currentChar = (char) getc(src_file);
                         }else{
-                            strcat(style_value, &currentChar);
-                            currentChar = (char) getc(srcF);
+                            temp[0] = currentChar;
+                            strcat(style_value, temp);
+                            currentChar = (char) getc(src_file);
                         }
                     }
                     currentStyle->key = style_key;
@@ -88,11 +112,11 @@ void parser(FILE *srcF, FILE *dstF){
                     currentStyle->next = style_next;
                     currentStyle = currentStyle->next;
 
-                    currentChar = (char) getc(srcF);
+                    currentChar = (char) getc(src_file);
                     //printf("%c", currentChar);
                 }
             }
-            printf("%s\n", selectorText);
+            //printf("%s\n", selectorText);
 
             currentSelector->selectorText = selectorText;
             currentSelector->style = style;
@@ -107,4 +131,7 @@ void parser(FILE *srcF, FILE *dstF){
     }
     //printf("%s\n", cssRule->selectorText);
     //printf("\n");
+    
+    //output to json
+    output_to_json(src_path, css_rule, dst_file);
 }
